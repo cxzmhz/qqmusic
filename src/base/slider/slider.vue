@@ -3,7 +3,9 @@
     <div class="slider-group" ref="sliderGroup">
      <slot></slot>
     </div>
-    <div class="dot"></div>
+    <div class="dots">
+      <span class="dot" :class="{active: currentPageIndex == index}" v-for="(itemm,index) in dots" :key="index"></span>
+    </div>
   </div>
 </template>
 <script type="text/ecmascript-6">
@@ -21,22 +23,34 @@
       },
       interval: {
         type: Number,
-        default: 4000
+        default: 2000
       }
     },
     data(){
       return {
-        children:[]
+        children:[],
+        dots: [],
+        currentPageIndex: 0
       }
     },
     mounted(){
       setTimeout(()=>{
         this._setSliderWidth();
+        this._initDots();
         this._initSlider();
+        if(this.autoPlay){
+          this._play();
+        }
       }, 20);
+      window.addEventListener("resize",()=>{
+        if(!this.slider){
+          return;
+        }
+        this._setSliderWidth(true)
+      })
     },
     methods:{
-      _setSliderWidth(){
+      _setSliderWidth(isResize){
         this.children = this.$refs.sliderGroup.children;
         let sliderWidth = this.$refs.slider.clientWidth;
         let width = 0;
@@ -45,22 +59,42 @@
           addClass(this.children[i],"slider-item");
           width += sliderWidth;
         }
-        if(this.loop){
+        if(this.loop && !isResize){
           width += sliderWidth * 2;
         }
         this.$refs.sliderGroup.style.width = width + "px";
+      },
+      _initDots(){
+        this.dots = new Array(this.children.length)
       },
       _initSlider(){
         this.slider = new BScroll(this.$refs.slider, {
           scrollX: true,
           scrollY: false,
           momentum: false,
-          snap: true,
-          snapLoop: this.loop,
-          snapThreshold: 0.3,
-          snapSpeed: 400,
-          click: true
+          snap: {
+            loop: this.loop,
+            threshold: 0.3,
+            speed: 400
+          },
+          bounce: false,
+          stopPropagation: true
         })
+        this.slider.on("scrollEnd",()=>{
+          let pageIndex = this.slider.getCurrentPage().pageX;
+          this.currentPageIndex = pageIndex
+          if(this.autoPlay){
+            clearTimeout(this.timeId)
+            this._play();
+          }
+        })
+      },
+      _play(){
+        let pageIndex = this.currentPageIndex;
+        this.timeId = setTimeout(()=>{
+          pageIndex+=1
+          this.slider.next()
+        },this.interval)
       }
     }
   }
@@ -70,6 +104,7 @@
 
   .slider
     min-height: 1px
+    position relative
     .slider-group
       position: relative
       overflow: hidden
