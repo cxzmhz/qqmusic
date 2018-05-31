@@ -15,7 +15,7 @@
   </div>
 </template>
 <script type="text/ecmascript-6">
-  import {getRecommend} from "src/api/recommend";
+  import {getRecommendSlider,getDiscList} from "src/api/recommend";
   import {ERR_OK} from "src/api/config"
   import Slider from "src/base/slider/slider"
   export default {
@@ -29,14 +29,20 @@
     },
     created(){
       this._getRecommend();
+      this._getDiscList();
     },
     methods:{
       _getRecommend(){
-        getRecommend().then((res)=>{
+        getRecommendSlider().then((res)=>{
           if(res.code == ERR_OK){
             this.recommends = res.data.slider;
           }
         });
+      },
+      _getDiscList(){
+        getDiscList().then((res)=>{
+          console.log(res);
+        })
       }
     }
   }

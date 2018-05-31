@@ -90,12 +90,13 @@
         })
       },
       _play(){
-        let pageIndex = this.currentPageIndex;
         this.timeId = setTimeout(()=>{
-          pageIndex+=1
           this.slider.next()
         },this.interval)
       }
+    },
+    destroyed(){
+      clearTimeout(this.timeId)
     }
   }
 </script>
