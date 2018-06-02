@@ -17,6 +17,8 @@ module.exports = {
             req.headers.referer = 'https://c.y.qq.com'
             req.headers.host = 'c.y.qq.com'
         },
+        secure: true,
+        changeOrigin: true,
         pathRewrite: {
             '^/api/getDiscList': ''
         }
