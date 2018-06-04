@@ -78,7 +78,8 @@
             speed: 400
           },
           bounce: false,
-          stopPropagation: true
+          stopPropagation: true,
+          click:true
         })
         this.slider.on("scrollEnd",()=>{
           let pageIndex = this.slider.getCurrentPage().pageX;
