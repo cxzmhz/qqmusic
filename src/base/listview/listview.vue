@@ -18,12 +18,22 @@
             </li>
          </ul>
       </div>
+      <div class="list-fixed" v-show="listTitle" ref="listFixed">
+        <h1 class="fixed-title">{{listTitle}}</h1>
+      </div>
+      <div class="loading-container" v-show="!data.length">
+        <loading></loading>
+      </div>
   </scroll>
 </template>
 <script type="text/ecmascript-6">
 import Scroll from "src/base/scroll/scroll";
 import { getData } from "common/js/dom.js";
+import Loading from "src/base/loading/loading"
+
 const ELE_HEIGHT = 18;
+const DIFF_HEIGHT = 30
+
 export default {
   created() {
     this.touch = {};
@@ -31,12 +41,14 @@ export default {
     this.listenScroll = true;
   },
   components: {
-    Scroll
+    Scroll,
+    Loading
   },
   data() {
     return {
       scrollY: -1,
-      currentIndex: 0
+      currentIndex: 0,
+      diff: -1
     };
   },
   props: {
@@ -50,6 +62,12 @@ export default {
       return this.data.map(group => {
         return group.title.substr(0, 1);
       });
+    },
+    listTitle(){
+      if(this.scrollY > 0){
+        return "";
+      }
+      return this.data[this.currentIndex]?this.data[this.currentIndex].title:"";
     }
   },
   methods: {
@@ -58,19 +76,28 @@ export default {
       let firstTouch = e.touches[0];
       this.touch.y1 = firstTouch.pageY;
       this.touch.archorIndex = touchIndex;
-      this._touchmove(touchIndex);
+      this._touchTo(touchIndex);
     },
     onShotcutTouchmove(e) {
       let firstTouch = e.touches[0];
       this.touch.y2 = firstTouch.pageY;
       let delta = ((this.touch.y2 - this.touch.y1) / ELE_HEIGHT) | 0;
       let touchIndex = parseInt(this.touch.archorIndex) + delta;
-      this._touchmove(touchIndex);
+      this._touchTo(touchIndex);
     },
     scroll(pos) {
       this.scrollY = pos.y;
     },
-    _touchmove(touchIndex) {
+    _touchTo(touchIndex) {
+      if(!touchIndex && touchIndex !== 0){
+        return;
+      }
+      if(touchIndex < 0){
+        touchIndex = 0
+      }else if(touchIndex > this.containerHeights.length - 2){
+        touchIndex = this.containerHeights.length - 2
+      }
+      this.scrollY = -this.containerHeights[touchIndex]
       this.$refs.listview.scrollToElement(this.$refs.listgroup[touchIndex], 0);
     },
     _calcHeight() {
@@ -100,9 +127,18 @@ export default {
       for(let i = 0; i<height.length;i++){
         if(!height[i+1] || (-newY >= height[i] && -newY <height[i+1])){
           this.currentIndex = i;
+          this.diff = height[i+1]+newY;
           return
         }
       }
+    },
+    diff(newV){
+      let fixedTop = newV > 0 && newV < DIFF_HEIGHT ? newV - DIFF_HEIGHT : 0;
+      if(this.fixedTop == fixedTop){
+        return;
+      }
+      this.fixedTop = fixedTop;
+      this.$refs.listFixed.style.transform = `translate3d(0,${fixedTop}px,0)`;
     }
   }
 };
