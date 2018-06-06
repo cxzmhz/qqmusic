@@ -18,6 +18,10 @@
          data: {
             type: Array,
             default: null
+         },
+         listenScroll: {
+           type: Boolean,
+           default:false
          }
       },
       mounted(){
@@ -34,6 +38,12 @@
                probeType: this.probeType,
                click: this.click
             })
+            if(this.listenScroll){
+              let that = this;
+              this.scroll.on('scroll',(pos)=>{
+                that.$emit('scroll',pos);
+              })
+            }
          },
          disable(){
             this.scroll && this.scroll.disable();
