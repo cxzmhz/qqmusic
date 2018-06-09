@@ -1,5 +1,8 @@
 <template>
-  <list-view :data="singerList"></list-view>
+  <div>
+    <list-view :data="singerList" @select="selectSinger"></list-view>
+    <router-view></router-view>
+  </div>
 </template>
 <script type="text/ecmascript-6">
   import {getSingerList} from "src/api/singer"
@@ -22,6 +25,11 @@
       this._getSingerList();
     },
     methods:{
+      selectSinger(singer){
+        this.$router.push({
+          path:`/singer/${singer.id}`
+        })
+      },
       _getSingerList(){
         getSingerList().then(res=>{
           if(res.code == ERR_OK){
