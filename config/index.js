@@ -22,6 +22,18 @@ module.exports = {
         pathRewrite: {
             '^/api/getDiscList': ''
         }
+      },
+      '/api/getVkey': {
+        target: 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg',
+        bypass: function(req, res, proxyOptions) {
+            req.headers.referer = 'https://c.y.qq.com'
+            req.headers.host = 'c.y.qq.com'
+        },
+        secure: true,
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api/getVkey': ''
+        }
       }
     },
 
