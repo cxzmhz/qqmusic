@@ -1,7 +1,7 @@
 import * as types from "./mutation-type"
 
 const mutations = {
-    //[](){}这种函数写法是当函数作为对象的方法的时候可以这么写，相当于a(){}
+    //[](){}这种函数写法是当函数作为对象的方法的时候可以这么写，取变量的值当函数名，相当于a(){}
    [types.SET_SINGER](state,data){
       state.singer = data;
    },
