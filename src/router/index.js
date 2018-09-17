@@ -11,6 +11,8 @@ import singerDetail from "components/singer-detail/singer-detail"
 
 Vue.use(Router);
 export default new Router({
+  mode:'history',//默认为hash，即路由前面会有一个#
+  fallback:false,//兼容ie9的hash模式
    routes:[
       {path:"/",redirect:"/recommend"},
       {path:"/recommend",component:recommend},

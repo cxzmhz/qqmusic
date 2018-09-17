@@ -42,10 +42,11 @@
             <span class="dot"></span>
           </div>
           <div class="progress-wrapper">
-            <span class="time time-l"></span>
+            <span class="time time-l">{{format(currentTime)}}</span>
             <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent"></progress-bar>
             </div>
-            <span class="time time-r"></span>
+            <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
           <div class="operators">
             <div class="icon i-left">
@@ -84,13 +85,14 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
+    <audio @timeupdate="updateTime" :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import { mapGetters,mapMutations } from "vuex";
   import Scroll from "src/base/scroll/scroll";
+  import ProgressBar from "src/base/progress-bar/progress-bar";
   import {prefixStyle} from "common/js/dom";
   import animations from "create-keyframe-animation";
 
@@ -99,10 +101,14 @@
   export default {
     data(){
       return {
-        songReady: false
+        songReady: false,
+        currentTime: 0
       }
     },
     computed:{
+      percent(){
+        return this.currentTime / this.currentSong.duration;
+      },
       disableCls(){
         return this.songReady ? "" : "disable"
       },
@@ -137,9 +143,27 @@
       }
     },
     components:{
-      Scroll
+      Scroll,
+      ProgressBar
     },
     methods:{
+      updateTime(e){
+        this.currentTime = e.target.currentTime;
+      },
+      format(interval){
+        interval = interval | 0;
+        const minute = interval/60 | 0;
+        const second = this._pad(interval % 60);
+        return `${minute}:${second}`;
+      },
+      _pad(num,n=2){
+        let len = num.toString().length;
+        while(len < n){
+          num = "0" + num;
+          len++;
+        }
+        return num;
+      },
       ready(){
         this.songReady = true;
       },
