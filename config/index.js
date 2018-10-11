@@ -34,6 +34,18 @@ module.exports = {
         pathRewrite: {
             '^/api/getVkey': ''
         }
+      },
+      '/api/lyric': {
+        target: 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric.fcg',
+        bypass: function(req, res, proxyOptions) {
+            req.headers.referer = 'https://c.y.qq.com'
+            req.headers.host = 'c.y.qq.com'
+        },
+        secure: true,
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api/lyric': ''
+        }
       }
     },
 

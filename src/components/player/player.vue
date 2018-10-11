@@ -44,13 +44,13 @@
           <div class="progress-wrapper">
             <span class="time time-l">{{format(currentTime)}}</span>
             <div class="progress-bar-wrapper">
-              <progress-bar :percent="percent"></progress-bar>
+              <progress-bar :percent="percent" ref="progressBar" @percentChange="onProgressBarChange"></progress-bar>
             </div>
             <span class="time time-r">{{format(currentSong.duration)}}</span>
           </div>
           <div class="operators">
-            <div class="icon i-left">
-              <i></i>
+            <div class="icon i-left" @click="changeMode">
+              <i :class="iconMode"></i>
             </div>
             <div class="icon i-left" :class="disableCls">
               <i @click="prev" class="icon-prev"></i>
@@ -78,14 +78,16 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-          <i @click.stop="togglePlaying" :class="miniIcon"></i>
+          <progress-circle :radius="radius" :percent="percent">
+            <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
+          </progress-circle>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-    <audio @timeupdate="updateTime" :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
+    <audio @timeupdate="updateTime" :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @ended="end"></audio>
   </div>
 </template>
 
@@ -93,7 +95,10 @@
   import { mapGetters,mapMutations } from "vuex";
   import Scroll from "src/base/scroll/scroll";
   import ProgressBar from "src/base/progress-bar/progress-bar";
+  import ProgressCircle from "src/base/progress-circle/progress-circle";
   import {prefixStyle} from "common/js/dom";
+  import {playMode} from "common/js/config";
+  import {shuffle} from "common/js/utils";
   import animations from "create-keyframe-animation";
 
   const transform = prefixStyle("transform")
@@ -102,10 +107,14 @@
     data(){
       return {
         songReady: false,
-        currentTime: 0
+        currentTime: 0,
+        radius: 32
       }
     },
     computed:{
+      iconMode(){
+        return this.mode == playMode.sequence ? "icon-sequence" : (this.mode == playMode.loop ? "icon-loop" : "icon-random")
+      },
       percent(){
         return this.currentTime / this.currentSong.duration;
       },
@@ -126,13 +135,17 @@
         "playlist",
         "currentSong",
         "playing",
-        "currentIndex"
+        "currentIndex",
+        "mode",
+        "sequenceList"
       ])
     },
     watch:{
-      currentSong(){
+      currentSong(nv,ov){
+        if(nv.id == ov.id) return;
         this.$nextTick(()=>{
           this.$refs.audio.play();
+          this.currentSong.getLyric();
         })
       },
       playing(nv){
@@ -144,9 +157,45 @@
     },
     components:{
       Scroll,
-      ProgressBar
+      ProgressBar,
+      ProgressCircle
     },
     methods:{
+      end(){
+        if(this.mode == playMode.loop){
+          this.loop();
+        }else{
+          this.next();
+        }
+      },
+      loop(){
+        this.$refs.audio.currentTime = 0;
+        this.$refs.audio.play();
+      },
+      changeMode(){
+        let mode = (this.mode +1)%3;
+        this.setPlayMode(mode);
+        let list = null;
+        if(mode == playMode.random){
+          list = shuffle(this.sequenceList)
+        }else {
+          list = this.sequenceList
+        }
+        this.resetCurrentIndex(list);
+        this.setPlayList(list);
+      },
+      resetCurrentIndex(list){
+        let index = list.findIndex((item)=>{
+          return item.id == this.currentSong.id
+        })
+        this.setCurrentIndex(index);
+      },
+      onProgressBarChange(percent){
+        this.$refs.audio.currentTime = this.currentSong.duration * percent;
+        if(!this.playing){
+          this.togglePlaying()
+        }
+      },
       updateTime(e){
         this.currentTime = e.target.currentTime;
       },
@@ -259,7 +308,9 @@
       ...mapMutations({
         setFullScreen:"SET_FULL_SCREEN",
         setPlayingState:"SET_PLAYING_STATE",
-        setCurrentIndex: "SET_CURRENT_INDEX"
+        setCurrentIndex: "SET_CURRENT_INDEX",
+        setPlayMode: "SET_PLAY_MODE",
+        setPlayList: "SET_PLAYLIST"
       })
     }
   }
