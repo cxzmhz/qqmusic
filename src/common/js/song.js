@@ -14,19 +14,29 @@ export class Song{
     this.url = url
   }
   getLyric(){
-    getLyric(this.id).then((res)=>{
-      var ret = res.data;
-      if(typeof ret === "string"){
-        var reg = /^\w+\(({[^()]+})\)$/;
-        var matches = ret.match(reg);
-        if(matches){
-          ret = JSON.parse(matches[1])
-          if(ret.retcode == ERR_OK){
-            this.lyric = ret.lyric;
-            console.log(this.lyric);
+    if(this.lyric){
+      return Promise.resolve(this.lyric);
+    }
+    return new Promise((resolve,reject)=>{
+      getLyric(this.id).then((res)=>{
+        var ret = res.data;
+        if(typeof ret === "string"){
+          var reg = /^\w+\(({[^()]+})\)$/;
+          var matches = ret.match(reg);
+          if(matches){
+            ret = JSON.parse(matches[1])
+            if(ret.retcode == ERR_OK){
+              let dom = document.createElement('div');
+              dom.innerHTML = ret.lyric;
+              this.lyric = dom.innerHTML;
+              resolve(this.lyric);
+            }else{
+              reject('no lyric');
+            }
           }
         }
-      }
+      })
+
     })
   }
 }

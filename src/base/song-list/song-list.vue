@@ -39,6 +39,7 @@
       box-sizing: border-box
       height: 64px
       font-size: $font-size-medium
+      padding-left: 18px
       
       .content
         flex: 1
