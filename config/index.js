@@ -11,40 +11,47 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
+      '/test': {
+        target: 'http://localhost:8881/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/test': ''
+        }
+      },
       '/api/getDiscList': {
         target: 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg',
-        bypass: function(req, res, proxyOptions) {
-            req.headers.referer = 'https://c.y.qq.com'
-            req.headers.host = 'c.y.qq.com'
+        bypass: function (req, res, proxyOptions) {
+          req.headers.referer = 'https://c.y.qq.com'
+          req.headers.host = 'c.y.qq.com'
         },
         secure: true,
         changeOrigin: true,
         pathRewrite: {
-            '^/api/getDiscList': ''
+          '^/api/getDiscList': ''
         }
       },
       '/api/getVkey': {
         target: 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg',
-        bypass: function(req, res, proxyOptions) {
-            req.headers.referer = 'https://c.y.qq.com'
-            req.headers.host = 'c.y.qq.com'
+        bypass: function (req, res, proxyOptions) {
+          req.headers.referer = 'https://c.y.qq.com'
+          req.headers.host = 'c.y.qq.com'
         },
         secure: true,
         changeOrigin: true,
         pathRewrite: {
-            '^/api/getVkey': ''
+          '^/api/getVkey': ''
         }
       },
       '/api/lyric': {
         target: 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric.fcg',
-        bypass: function(req, res, proxyOptions) {
-            req.headers.referer = 'https://c.y.qq.com'
-            req.headers.host = 'c.y.qq.com'
+        bypass: function (req, res, proxyOptions) {
+          req.headers.referer = 'https://c.y.qq.com'
+          req.headers.host = 'c.y.qq.com'
         },
         secure: true,
         changeOrigin: true,
         pathRewrite: {
-            '^/api/lyric': ''
+          '^/api/lyric': ''
         }
       }
     },
@@ -57,7 +64,7 @@ module.exports = {
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
-    
+
     /**
      * Source Maps
      */
@@ -88,7 +95,7 @@ module.exports = {
 
     productionSourceMap: true,
     // https://webpack.js.org/configuration/devtool/#production
-    devtool: '#source-map',
+    devtool: false,
 
     // Gzip off by default as many popular static hosts such as
     // Surge or Netlify already gzip all static assets for you.

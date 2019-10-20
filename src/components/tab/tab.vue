@@ -13,28 +13,49 @@
     <router-link tag="div" class="tab-item" to="/search">
       <span class="tab-link">搜索</span>
     </router-link>
+    <router-link tag="div" class="tab-item" to="/show">
+      <span class="tab-link">展示</span>
+    </router-link>
+    <router-link tag="div" class="tab-item" to="/upload">
+      <span class="tab-link">上传</span>
+    </router-link>
+    <router-link tag="div" class="tab-item" to="/socket">
+      <span class="tab-link">socket</span>
+    </router-link>
+    <router-link tag="div" class="tab-item" to="/loginAndout">
+      <span class="tab-link">注册登录</span>
+    </router-link>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  export default {}
+export default {};
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-  @import "~common/stylus/variable"
-  .tab
-    display: flex
-    height: 44px
-    line-height: 44px
-    font-size: $font-size-medium
-    .tab-item
-      flex: 1
-      text-align: center
-      .tab-link
-        padding-bottom: 5px
-        color: $color-text-l
-      &.router-link-active
-        .tab-link
-          color: $color-theme
-          border-bottom: 2px solid $color-theme
+@import '~common/stylus/variable';
+
+.tab {
+  display: flex;
+  height: 44px;
+  line-height: 44px;
+  font-size: $font-size-medium;
+
+  .tab-item {
+    flex: 1;
+    text-align: center;
+
+    .tab-link {
+      padding-bottom: 5px;
+      color: $color-text-l;
+    }
+
+    &.router-link-active {
+      .tab-link {
+        color: $color-theme;
+        border-bottom: 2px solid $color-theme;
+      }
+    }
+  }
+}
 </style>

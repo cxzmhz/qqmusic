@@ -35,103 +35,136 @@
   </div>
 </template>
 <script type="text/ecmascript-6">
-  import {getRecommendSlider,getDiscList} from "src/api/recommend";
-  import {ERR_OK} from "src/api/config"
-  import Slider from "src/base/slider/slider"
-  import Scroll from "src/base/scroll/scroll"
-  import Loading from "src/base/loading/loading"
-  import {playlistMixin} from 'common/js/mixin';
-  export default {
-    mixins:[playlistMixin],
-    components:{
-      Slider,
-      Scroll,
-      Loading
+import { getRecommendSlider, getDiscList } from "src/api/recommend";
+import { ERR_OK } from "src/api/config";
+import Slider from "src/base/slider/slider";
+import Scroll from "src/base/scroll/scroll";
+import Loading from "src/base/loading/loading";
+import { playlistMixin } from "common/js/mixin";
+export default {
+  mixins: [playlistMixin],
+  components: {
+    Slider,
+    Scroll,
+    Loading
+  },
+  data() {
+    return {
+      recommends: [],
+      descList: []
+    };
+  },
+  created() {
+    this._getRecommend();
+    this._getDiscList();
+  },
+  methods: {
+    handlePlaylist(playlist) {
+      const bottom = playlist.length > 0 ? "60px" : "";
+      this.$refs.recommend.style.bottom = bottom;
+      this.$refs.scroll.refresh();
     },
-    data(){
-      return {
-        recommends:[],
-        descList: []
+    _getRecommend() {
+      getRecommendSlider().then(res => {
+        if (res.code == ERR_OK) {
+          this.recommends = res.data.slider;
+        }
+      });
+    },
+    // _getDiscList(){
+    //   getDiscList().then((res)=>{
+    //     this.descList = res.data.list;
+    //   })
+    // },
+    //使用async函数改编请求
+    async _getDiscList() {
+      // let res = await getDiscList().catch(e=>{
+      //   console.log(e);
+      // });
+      // this.descList = res.data.list;
+      try {
+        let res = await getDiscList();
+        this.descList = res.data.list;
+      } catch (e) {
+        console.log(e);
       }
     },
-    created(){
-      this._getRecommend();
-      this._getDiscList();
-    },
-    methods:{
-      handlePlaylist(playlist){
-        const bottom = playlist.length > 0 ? "60px" : "";
-        this.$refs.recommend.style.bottom = bottom;
+    loadImage() {
+      if (!this.checkLoad) {
         this.$refs.scroll.refresh();
-      },
-      _getRecommend(){
-        getRecommendSlider().then((res)=>{
-          if(res.code == ERR_OK){
-            this.recommends = res.data.slider;
-          }
-        });
-      },
-      _getDiscList(){
-        getDiscList().then((res)=>{
-          this.descList = res.data.list;
-        })
-      },
-      loadImage(){
-        if(!this.checkLoad){
-          this.$refs.scroll.refresh();
-          this.checkLoad = true;
-        }
+        this.checkLoad = true;
       }
     }
   }
+};
 </script>
 <style scoped lang="stylus" rel="stylesheet/stylus">
-  @import "~common/stylus/variable"
+@import '~common/stylus/variable';
 
-  .recommend
-    position: fixed
-    width: 100%
-    top: 88px
-    bottom: 0
-    .recommend-content
-      height: 100%
-      overflow: hidden
-      .slider-wrapper
-        position: relative
-        width: 100%
-        overflow: hidden
-      .recommend-list
-        .list-title
-          height: 65px
-          line-height: 65px
-          text-align: center
-          font-size: $font-size-medium
-          color: $color-theme
-        .item
-          display: flex
-          box-sizing: border-box
-          align-items: center
-          padding: 0 20px 20px 20px
-          .icon
-            flex: 0 0 60px
-            width: 60px
-            padding-right: 20px
-          .text
-            display: flex
-            flex-direction: column
-            justify-content: center
-            flex: 1
-            line-height: 20px
-            overflow: hidden
-            font-size: $font-size-medium
-            .name
-              margin-bottom: 10px
-              color: $color-text
-            .desc
-              color: $color-text-d
-      .loading-container
-        position: absolute
-        width: 100%
-        top: 50%
-        transform: translateY(-50%)
+.recommend {
+  position: fixed;
+  width: 100%;
+  top: 88px;
+  bottom: 0;
+
+  .recommend-content {
+    height: 100%;
+    overflow: hidden;
+
+    .slider-wrapper {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .recommend-list {
+      .list-title {
+        height: 65px;
+        line-height: 65px;
+        text-align: center;
+        font-size: $font-size-medium;
+        color: $color-theme;
+      }
+
+      .item {
+        display: flex;
+        box-sizing: border-box;
+        align-items: center;
+        padding: 0 20px 20px 20px;
+
+        .icon {
+          flex: 0 0 60px;
+          width: 60px;
+          padding-right: 20px;
+        }
+
+        .text {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          flex: 1;
+          line-height: 20px;
+          overflow: hidden;
+          font-size: $font-size-medium;
+
+          .name {
+            margin-bottom: 10px;
+            color: $color-text;
+          }
+
+          .desc {
+            color: $color-text-d;
+          }
+        }
+      }
+    }
+
+    .loading-container {
+      position: absolute;
+      width: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
+}
 </style>
